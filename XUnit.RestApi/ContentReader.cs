@@ -6,16 +6,11 @@ namespace XUnit.RestApi
 {
     public static class ContentReader
     {
-        public static Task<JToken> Read(Task<HttpResponseMessage> response)
+        public static Task<JToken> Read(HttpResponseMessage response)
         {
-            return response.ContinueWith(ReadContentAsString)
-                .Unwrap()
+            return response.Content
+                .ReadAsStringAsync()
                 .ContinueWith(ParseContent);
-        }
-
-        private static Task<string> ReadContentAsString(Task<HttpResponseMessage> responseTask)
-        {
-            return responseTask.Result.Content.ReadAsStringAsync();
         }
 
         private static JToken ParseContent(Task<string> contentTask)

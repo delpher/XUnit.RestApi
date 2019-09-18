@@ -51,13 +51,17 @@ namespace XUnit.RestApi
             return this;
         }
 
-        private Task VerifyBody(Action<JToken> assertions)
+        private Task VerifyBody(Action<JToken> runContentAssertions)
         {
-            return ContentReader
-                .Read(_response)
-                .ContinueWith(content => assertions(content.Result));
+            return WhenResponse(WhenContent(runContentAssertions));
         }
-        
+
+        private static Action<HttpResponseMessage> WhenContent(Action<JToken> contentAction)
+        {
+            return response => ContentReader.Read(response)
+                .ContinueWith(contentTask => contentAction(contentTask.Result));
+        }
+
         private Task WhenResponse(Action<HttpResponseMessage> action)
         {
             return _response.ContinueWith(responseTask => action(responseTask.Result));
