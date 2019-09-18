@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IObjectComparer.cs" />
     <Compile Include="RequestSender.cs" />
     <Compile Include="ResponseAssertions.cs" />
     <Compile Include="ResponseValidator.cs" />

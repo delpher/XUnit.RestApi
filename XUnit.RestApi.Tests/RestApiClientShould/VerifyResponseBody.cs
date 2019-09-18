@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using FluentAssertions.Json;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
 using XUnit.RestApi.Tests.Helpers;
 using Xunit.Sdk;
@@ -51,12 +53,43 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
                     });
             }
 
+            [Fact]
+            public async Task Verify_Body_With_Comparer()
+            {
+                var original = new {name = "Bob", age = 32, position = "Manager"};
+                var sample = new { name = "Bob", age = 32 };
+                
+                var id = GivenResponseContent(original);
+                
+                await
+                    Api
+                        .When()
+                        .Get($"getContent/{id}")
+                        .Then()
+                        .Body(new Contains(sample));
+            }
+
             public class User
             {
                 [JsonProperty(PropertyName = "name")] public string Name { get; set; }
 
                 [JsonProperty(PropertyName = "age")] public int Age { get; set; }
             }
+        }
+    }
+
+    public class Contains : IObjectComparer
+    {
+        private readonly object _sample;
+
+        public Contains(object sample)
+        {
+            _sample = sample;
+        }
+
+        public void Validate(JToken actual)
+        {
+            actual.Should().ContainSubtree(JToken.FromObject(_sample));
         }
     }
 }

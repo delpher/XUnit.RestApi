@@ -55,6 +55,18 @@ namespace XUnit.RestApi
             return this;
         }
 
+        public ResponseAssertions Body(IObjectComparer comparer)
+        {
+            var bodyVerifyTask = _response
+                .ContinueWith(responseTask => responseTask.Result.Content.ReadAsStringAsync())
+                .Unwrap()
+                .ContinueWith(contentTask => comparer.Validate(JToken.Parse(contentTask.Result)));
+
+            _assertions.Add(bodyVerifyTask);
+
+            return this;
+        }
+
         public ResponseAssertions Location(string expectedLocation)
         {
             var verifyLocationTask = _response
