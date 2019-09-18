@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FluentAssertions.Json;
 using Newtonsoft.Json;
@@ -24,7 +25,7 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
             }
 
             [Fact]
-            public async Task Fail_When_Assertions_Fail()
+            public async Task Fail_When_Properties_Mismatch()
             {
                 var id = GivenResponseContent(new {name = "Smith"});
 
@@ -42,6 +43,7 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
             public async Task Provide_Strongly_Typed_Body()
             {
                 var id = GivenResponseContent(new {name = "Mary", age = 32});
+
                 await Api
                     .When()
                     .Get($"getContent/{id}")
@@ -67,6 +69,24 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
                         .Get($"getContent/{id}")
                         .Then()
                         .Body(new Contains(sample));
+            }
+
+            [Fact]
+            public async Task Fail_When_Comparer_Fails()
+            {
+                var bob = new {name = "Bob", age = 32, position = "Manager"};
+                var mark = new { name = "Mark", age = 44 };
+                
+                var id = GivenResponseContent(bob);
+
+                async Task FailingComparision() =>
+                    await Api
+                        .When()
+                        .Get($"getContent/{id}")
+                        .Then()
+                        .Body(new Contains(mark));
+
+                await Assert.ThrowsAnyAsync<XunitException>(FailingComparision);
             }
 
             public class User

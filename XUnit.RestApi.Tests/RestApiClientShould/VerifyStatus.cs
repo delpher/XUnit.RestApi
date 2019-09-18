@@ -24,7 +24,8 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
             public async Task Throw_On_Status_Mismatch()
             {
                 async Task VerifyWrongStatus() =>
-                    await Api.When()
+                    await Api
+                        .When()
                         .Get("test200ok")
                         .Then()
                         .Status(HttpStatusCode.Accepted);
@@ -39,7 +40,8 @@ namespace XUnit.RestApi.Tests.RestApiClientShould
 
                 var id = GivenExceptionMessage(expectedMessage);
 
-                await Api.When()
+                await Api
+                    .When()
                     .Get($"serverError/{id}")
                     .Then()
                     .Status(HttpStatusCode.InternalServerError)
