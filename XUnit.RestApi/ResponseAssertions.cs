@@ -11,80 +11,66 @@ namespace XUnit.RestApi
     public class ResponseAssertions
     {
         private readonly Task<HttpResponseMessage> _response;
-        private readonly List<Task> _assertions;
+        private readonly List<Task> _tasks;
 
         public ResponseAssertions(Task<HttpResponseMessage> response)
         {
             _response = response;
-            _assertions = new List<Task>();
+            _tasks = new List<Task>();
         }
 
         public ResponseAssertions Status(HttpStatusCode expectedStatus)
         {
-            var checkTask = _response.ContinueWith(t => AssertStatusCode(expectedStatus, t.Result));
-            _assertions.Add(checkTask);
-            return this;
-        }
-
-        private static void AssertStatusCode(HttpStatusCode expectedStatus, HttpResponseMessage responseMessage)
-        {
-            Assert.Equal(expectedStatus, responseMessage.StatusCode);
-        }
-
-        public ResponseAssertions Body<T>(Action<T> bodyAssertions)
-        {
-            var bodyVerifyTask = _response
-                .ContinueWith(responseTask => responseTask.Result.Content.ReadAsStringAsync())
-                .Unwrap()
-                .ContinueWith(contentTask => bodyAssertions(JToken.Parse(contentTask.Result).ToObject<T>()));
-
-            _assertions.Add(bodyVerifyTask);
-
-            return this;
-        }
-
-        public ResponseAssertions Body(Action<dynamic> bodyAssertions)
-        {
-            var bodyVerifyTask = _response
-                .ContinueWith(responseTask => responseTask.Result.Content.ReadAsStringAsync())
-                .Unwrap()
-                .ContinueWith(contentTask => bodyAssertions(JToken.Parse(contentTask.Result)));
-
-            _assertions.Add(bodyVerifyTask);
-
-            return this;
-        }
-
-        public ResponseAssertions Body(IObjectComparer comparer)
-        {
-            var bodyVerifyTask = _response
-                .ContinueWith(responseTask => responseTask.Result.Content.ReadAsStringAsync())
-                .Unwrap()
-                .ContinueWith(contentTask => comparer.Validate(JToken.Parse(contentTask.Result)));
-
-            _assertions.Add(bodyVerifyTask);
-
+            AddTask(WhenResponse(response => Assert.Equal(expectedStatus, response.StatusCode)));
             return this;
         }
 
         public ResponseAssertions Location(string expectedLocation)
         {
-            var verifyLocationTask = _response
-                .ContinueWith(responseTask => AssertLocation(expectedLocation, responseTask.Result));
-            
-            _assertions.Add(verifyLocationTask);
-            
+            AddTask(WhenResponse(response => Assert.Equal(expectedLocation, "" + response.Headers.Location)));
+
             return this;
         }
 
-        private static void AssertLocation(string expectedLocation, HttpResponseMessage response)
+        public ResponseAssertions Body<T>(Action<T> assertions)
         {
-            Assert.Equal(expectedLocation, "" + response.Headers.Location);
+            AddTask(VerifyBody(content =>
+                assertions(content.ToObject<T>())));
+            return this;
+        }
+
+        public ResponseAssertions Body(Action<dynamic> assertions)
+        {
+            AddTask(VerifyBody(assertions));
+            return this;
+        }
+
+        public ResponseAssertions Body(IObjectComparer comparer)
+        {
+            AddTask(VerifyBody(comparer.Validate));
+            return this;
+        }
+
+        private Task VerifyBody(Action<JToken> assertions)
+        {
+            return ContentReader
+                .Read(_response)
+                .ContinueWith(content => assertions(content.Result));
+        }
+        
+        private Task WhenResponse(Action<HttpResponseMessage> action)
+        {
+            return _response.ContinueWith(responseTask => action(responseTask.Result));
+        }
+
+        private void AddTask(Task task)
+        {
+            _tasks.Add(task);
         }
 
         internal async Task Verify()
         {
-            await Task.WhenAll(_assertions);
+            await Task.WhenAll(_tasks);
         }
     }
 }
