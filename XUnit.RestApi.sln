@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnit.RestApi", "XUnit.RestApi\XUnit.RestApi.csproj", "{439D3B83-F1A4-4AAE-A66E-1DF551670A1E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnit.RestApi.Tests", "XUnit.RestApi.Tests\XUnit.RestApi.Tests.csproj", "{2B67068B-6220-4552-B52E-8E48939E4EAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{439D3B83-F1A4-4AAE-A66E-1DF551670A1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{439D3B83-F1A4-4AAE-A66E-1DF551670A1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{439D3B83-F1A4-4AAE-A66E-1DF551670A1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{439D3B83-F1A4-4AAE-A66E-1DF551670A1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B67068B-6220-4552-B52E-8E48939E4EAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B67068B-6220-4552-B52E-8E48939E4EAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B67068B-6220-4552-B52E-8E48939E4EAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B67068B-6220-4552-B52E-8E48939E4EAA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
